@@ -1,0 +1,109 @@
+var map;
+var $login = document.getElementById('login-foursquare');
+var $logout = document.getElementById('logout-foursquare');
+
+// Bind links to open in native iOS app first
+document.body.addEventListener('click', function(e){
+  var el = e.target;
+  if (el.tagName.toLowerCase() == 'a' && el.dataset.target == 'fsq.venue'){
+    e.preventDefault();
+    var appWindow = window.open('foursquare://venues/' + el.dataset.venue);
+    setTimeout(function(){
+      if (appWindow) appWindow.location = el.href;
+    }, 1000);
+  }
+}, false);
+
+$login.addEventListener('click', function(){
+  hello('foursquare').login({
+    display: 'popup'
+  });
+}, false);
+
+$logout.addEventListener('click', function(){
+  hello('foursquare').logout();
+}, false);
+
+hello
+  .on('auth.login', function(auth){
+    $login.hidden = true;
+    $logout.hidden = false;
+
+    hello('foursquare').api('users/self/lists', {group: 'created'}).then(function(data){
+      var items = data.response.lists.items;
+      var item = items.filter(function(item){return /todo/.test(item.id)})[0];
+      if (!item) return;
+      var listID = item.id;
+
+      hello('foursquare').api('lists/' + listID, {limit: 200}).then(function(d){
+        var currentInfoWindow = {close: function(){}};
+        d.response.list.listItems.items.forEach(function(item){
+          var venue = item.venue;
+          var infoWindow = new google.maps.InfoWindow({
+            content: '<a href="http://foursquare.com/v/5013da8ae4b01bcdb20595b6" target="_blank" data-target="fsq.venue" data-venue="' + venue.id + '" style="display: block;"><strong>' + venue.name + '</strong></a>'
+              + venue.location.formattedAddress.join('<br>')
+              + '<br>'
+              + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; })
+          });
+
+          var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
+            map: map,
+            title: venue.name
+          });
+          google.maps.event.addListener(marker, 'click', function() {
+            currentInfoWindow.close();
+            infoWindow.open(map, marker);
+            currentInfoWindow = infoWindow;
+          });
+        });
+      });
+
+    });
+  })
+  .on('auth.logout', function(){
+    $login.hidden = false;
+    $logout.hidden = true;
+  });
+
+google.maps.event.addDomListener(window, 'load', function(){
+  hello.init({
+    foursquare: 'QUJ11EJTNO0PNBLA40QWMSQZCXJMMVP05NJ1NYI0MZ1PB4P3'
+  });
+
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: -34.397, lng: 150.644},
+    zoom: 16,
+    disableDefaultUI: true
+  });
+
+  var geoMarker = new google.maps.Marker({
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 6,
+      fillColor: '#4B9FF9',
+      fillOpacity: 1,
+      strokeColor: '#fff',
+      strokeOpacity: .5,
+      strokeWeight: 6
+    },
+    map: map,
+    title: 'Your current location'
+  });
+
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      map.setCenter(pos);
+    }, function() {
+      alert('Oops, unable to get your location :(');
+    });
+
+    navigator.geolocation.watchPosition(function(position) {
+      var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      geoMarker.setPosition(pos);
+    });
+  } else {
+    alert('Oops, unable to get your location :(');
+  }
+});
