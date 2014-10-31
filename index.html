@@ -5,15 +5,26 @@
 
 <style>
 html, body, #map{ height: 100%; margin: 0; padding: 0; }
-#login-foursquare, #logout-foursquare{ position: absolute; top: 10px; right: 10px; z-index: 99999; }
+body, button{ font-family: sans-serif; font-size: 1em; }
+section{ position: absolute; background: rgba(255,255,255,.75); top: 0; right: 0; z-index: 99999; padding: 10px; max-width: 100%; }
+p{ margin-top: 0; padding-top: 0; }
+.info-content{ max-width: 280px; }
 a{ text-decoration: none; color: #4B9FF9; }
 a *{ pointer-events: none; }
 small { text-transform: uppercase; opacity: .7; }
 </style>
 
 <div id="map"></div>
-<button id="login-foursquare">Connect with Foursquare</button>
-<button id="logout-foursquare" hidden>Logout</button>
+<section>
+  <div id="pre-connect">
+    <p><strong>Fourcircle</strong> plots your Foursquare to-do venues on a map. Begin by connecting with Foursquare.</p>
+    <button id="login-foursquare">Connect with Foursquare</button>
+  </div>
+  <div id="post-connect" hidden>
+    <button id="current-location" hidden>Current location</button>
+    <button id="logout-foursquare">Logout</button>
+  </div>
+</section>
 
 <script src="hello.all.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGdLekMoehYKLWhqCPEE4245sFnetswIA"></script>
