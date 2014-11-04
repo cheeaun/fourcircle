@@ -10,12 +10,11 @@ document.body.addEventListener('click', function(e){
   var el = e.target;
   if (el.tagName.toLowerCase() == 'a' && el.dataset.target == 'fsq.venue'){
     e.preventDefault();
+    var start = +new Date();
     location = 'foursquare://venues/' + el.dataset.venue;
-    setTimeout(function(){
-      if (!document.webkitHidden){
-        window.open(el.href);
-      }
-    }, 10);
+    var end = +new Date();
+    var elapsed = end - start;
+    if (elapsed < 1) window.open(el.href);
   }
 }, false);
 
