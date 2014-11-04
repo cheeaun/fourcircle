@@ -12,7 +12,9 @@ document.body.addEventListener('click', function(e){
     e.preventDefault();
     location = 'foursquare://venues/' + el.dataset.venue;
     setTimeout(function(){
-      window.open(el.href);
+      if (!document.webkitHidden){
+        window.open(el.href);
+      }
     }, 10);
   }
 }, false);
