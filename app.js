@@ -10,10 +10,10 @@ document.body.addEventListener('click', function(e){
   var el = e.target;
   if (el.tagName.toLowerCase() == 'a' && el.dataset.target == 'fsq.venue'){
     e.preventDefault();
-    var appWindow = window.open('foursquare://venues/' + el.dataset.venue);
+    location = 'foursquare://venues/' + el.dataset.venue;
     setTimeout(function(){
-      if (appWindow) appWindow.location = el.href;
-    }, 1000);
+      window.open(el.href);
+    }, 10);
   }
 }, false);
 
