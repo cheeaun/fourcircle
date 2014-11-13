@@ -4,17 +4,17 @@ var $postConnect = document.getElementById('post-connect');
 var $login = document.getElementById('login-foursquare');
 var $logout = document.getElementById('logout-foursquare');
 var $currentLocation = document.getElementById('current-location');
+var $beam = document.getElementById('beam');
 
 // Bind links to open in native iOS app first
 document.body.addEventListener('click', function(e){
   var el = e.target;
   if (el.tagName.toLowerCase() == 'a' && el.dataset.target == 'fsq.venue'){
     e.preventDefault();
-    var start = +new Date();
-    location = 'foursquare://venues/' + el.dataset.venue;
-    var end = +new Date();
-    var elapsed = end - start;
-    if (elapsed < 1) window.open(el.href);
+    $beam.src = 'foursquare://venues/' + el.dataset.venue;
+    setTimeout(function(){
+      window.open(el.href);
+    }, 1);
   }
 }, false);
 
