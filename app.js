@@ -14,7 +14,7 @@ document.body.addEventListener('click', function(e){
     $beam.src = 'foursquare://venues/' + el.dataset.venue;
     setTimeout(function(){
       window.open(el.href);
-    }, 1);
+    }, 300);
   }
 }, false);
 
