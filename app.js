@@ -11,10 +11,11 @@ document.body.addEventListener('click', function(e){
   var el = e.target;
   if (el.tagName.toLowerCase() == 'a' && el.dataset.target == 'fsq.venue'){
     e.preventDefault();
+    var start = +new Date();
     $beam.src = 'foursquare://venues/' + el.dataset.venue;
-    setTimeout(function(){
-      window.open(el.href);
-    }, 300);
+    var end = +new Date();
+    var elapsed = end - start;
+    if (elapsed < 1) window.open(el.href);
   }
 }, false);
 
