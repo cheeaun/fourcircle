@@ -58,8 +58,7 @@ hello
           var infoWindow = new google.maps.InfoWindow({
             content: '<div class="info-content">'
               + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank" data-target="fsq.venue" data-venue="' + venue.id + '" style="display: block;"><strong>' + venue.name + '</strong></a>'
-              + venue.location.formattedAddress.join('<br>')
-              + '<br>'
+              + (venue.location.formattedAddress ? (venue.location.formattedAddress.join('<br>') + '<br>') : '')
               + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; })
               + '</div>'
           });
