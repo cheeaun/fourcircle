@@ -42,40 +42,43 @@ hello
       if (!item) return;
       var listID = item.id;
 
-      var position = map.getCenter();
-      var radius = 50000; // meters
-      var neBounds = google.maps.geometry.spherical.computeOffset(position, radius, 45);
-      var swBounds = google.maps.geometry.spherical.computeOffset(position, radius, 135);
+      var venues = [];
+      var getVenues = function(index){
+        hello('foursquare').api('lists/' + listID, {
+          limit: 200,
+          offset: index*200
+        }).then(function(d){
+          var listItems = d.response.list.listItems;
+          venues = venues.concat(listItems.items);
+          if (listItems.count > venues.length){
+            getVenues();
+            return;
+          }
+          var currentInfoWindow = {close: function(){}};
+          venues.forEach(function(item){
+            var venue = item.venue;
+            var infoWindow = new google.maps.InfoWindow({
+              content: '<div class="info-content">'
+                + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank" data-target="fsq.venue" data-venue="' + venue.id + '" style="display: block;"><strong>' + venue.name + '</strong></a>'
+                + (venue.location.formattedAddress ? (venue.location.formattedAddress.join('<br>') + '<br>') : '')
+                + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; })
+                + '</div>'
+            });
 
-      hello('foursquare').api('lists/' + listID, {
-        limit: 200,
-        sort: 'nearby',
-        llBounds: swBounds.toUrlValue() + ',' + neBounds.toUrlValue()
-      }).then(function(d){
-        var currentInfoWindow = {close: function(){}};
-        d.response.list.listItems.items.forEach(function(item){
-          var venue = item.venue;
-          var infoWindow = new google.maps.InfoWindow({
-            content: '<div class="info-content">'
-              + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank" data-target="fsq.venue" data-venue="' + venue.id + '" style="display: block;"><strong>' + venue.name + '</strong></a>'
-              + (venue.location.formattedAddress ? (venue.location.formattedAddress.join('<br>') + '<br>') : '')
-              + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; })
-              + '</div>'
-          });
-
-          var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
-            map: map,
-            title: venue.name
-          });
-          google.maps.event.addListener(marker, 'click', function() {
-            currentInfoWindow.close();
-            infoWindow.open(map, marker);
-            currentInfoWindow = infoWindow;
+            var marker = new google.maps.Marker({
+              position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
+              map: map,
+              title: venue.name
+            });
+            google.maps.event.addListener(marker, 'click', function() {
+              currentInfoWindow.close();
+              infoWindow.open(map, marker);
+              currentInfoWindow = infoWindow;
+            });
           });
         });
-      });
-
+      }
+      getVenues(0);
     });
   })
   .on('auth.logout', function(){
