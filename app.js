@@ -36,14 +36,31 @@ hello
     $preConnect.hidden = true;
     $postConnect.hidden = false;
 
-    hello('foursquare').api('users/self/lists', {group: 'created'}).then(function(data){
-      var items = data.response.lists.items;
-      var item = items.filter(function(item){return /todo/.test(item.id)})[0];
-      if (!item) return;
-      var listID = item.id;
+    var getList = function(callback){
+      var listID = lscache.get('listID');
+      if (listID){
+        callback(listID);
+      } else {
+        hello('foursquare').api('users/self/lists', {group: 'created'}).then(function(data){
+          var items = data.response.lists.items;
+          var item = items.filter(function(item){return /todo/.test(item.id)})[0];
+          if (!item){
+            callback();
+            return;
+          };
+          var listID = item.id;
+          callback(listID);
+          lscache.set('listID', listID, 60); // 1 hour
+        });
+      }
+    };
 
-      var venues = [];
-      var getVenues = function(index){
+    var venues = [];
+    var getVenues = function(index, listID, callback){
+      var allVenues = lscache.get('allVenues');
+      if (allVenues && allVenues.length){
+        callback(allVenues);
+      } else {
         hello('foursquare').api('lists/' + listID, {
           limit: 200,
           offset: index*200
@@ -51,34 +68,40 @@ hello
           var listItems = d.response.list.listItems;
           venues = venues.concat(listItems.items);
           if (listItems.count > venues.length){
-            getVenues();
+            getVenues(++index, listID, callback);
             return;
           }
-          var currentInfoWindow = {close: function(){}};
-          venues.forEach(function(item){
-            var venue = item.venue;
-            var infoWindow = new google.maps.InfoWindow({
-              content: '<div class="info-content">'
-                + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank" data-target="fsq.venue" data-venue="' + venue.id + '" style="display: block;"><strong>' + venue.name + '</strong></a>'
-                + (venue.location.formattedAddress ? (venue.location.formattedAddress.join('<br>') + '<br>') : '')
-                + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; })
-                + '</div>'
-            });
-
-            var marker = new google.maps.Marker({
-              position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
-              map: map,
-              title: venue.name
-            });
-            google.maps.event.addListener(marker, 'click', function() {
-              currentInfoWindow.close();
-              infoWindow.open(map, marker);
-              currentInfoWindow = infoWindow;
-            });
-          });
+          callback(venues);
+          lscache.set('allVenues', venues, 60); // 1 hour
         });
       }
-      getVenues(0);
+    };
+
+    getList(function(listID){
+      getVenues(0, listID, function(allVenues){
+        var currentInfoWindow = {close: function(){}};
+        allVenues.forEach(function(item){
+          var venue = item.venue;
+          var infoWindow = new google.maps.InfoWindow({
+            content: '<div class="info-content">'
+              + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank" data-target="fsq.venue" data-venue="' + venue.id + '" style="display: block;"><strong>' + venue.name + '</strong></a>'
+              + (venue.location.formattedAddress ? (venue.location.formattedAddress.join('<br>') + '<br>') : '')
+              + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; })
+              + '</div>'
+          });
+
+          var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
+            map: map,
+            title: venue.name
+          });
+          google.maps.event.addListener(marker, 'click', function() {
+            currentInfoWindow.close();
+            infoWindow.open(map, marker);
+            currentInfoWindow = infoWindow;
+          });
+        });
+      });
     });
   })
   .on('auth.logout', function(){
