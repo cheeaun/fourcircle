@@ -115,7 +115,6 @@ hello.init({
 
 google.maps.event.addDomListener(window, 'load', function(){
   map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: 0, lng: 0},
     zoom: 16,
     disableDefaultUI: true
   });
