@@ -109,6 +109,10 @@ hello
     $postConnect.hidden = true;
   });
 
+hello.init({
+  foursquare: 'QUJ11EJTNO0PNBLA40QWMSQZCXJMMVP05NJ1NYI0MZ1PB4P3'
+});
+
 google.maps.event.addDomListener(window, 'load', function(){
   map = new google.maps.Map(document.getElementById('map'), {
     center: { lat: 0, lng: 0},
@@ -134,9 +138,6 @@ google.maps.event.addDomListener(window, 'load', function(){
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
       map.setCenter(pos);
-      hello.init({
-        foursquare: 'QUJ11EJTNO0PNBLA40QWMSQZCXJMMVP05NJ1NYI0MZ1PB4P3'
-      });
     }, function() {
       alert('Oops, unable to get your location :(');
     });
