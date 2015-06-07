@@ -120,6 +120,9 @@ google.maps.event.addDomListener(window, 'load', function(){
     disableDefaultUI: true
   });
 
+  var transitLayer = new google.maps.TransitLayer();
+  transitLayer.setMap(map);
+
   var geoMarker = new google.maps.Marker({
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
