@@ -6,19 +6,6 @@ var $logout = document.getElementById('logout-foursquare');
 var $currentLocation = document.getElementById('current-location');
 var $beam = document.getElementById('beam');
 
-// Bind links to open in native iOS app first
-document.body.addEventListener('click', function(e){
-  var el = e.target;
-  if (el.tagName.toLowerCase() == 'a' && el.dataset.target == 'fsq.venue'){
-    e.preventDefault();
-    var start = +new Date();
-    $beam.src = 'foursquare://venues/' + el.dataset.venue;
-    var end = +new Date();
-    var elapsed = end - start;
-    if (elapsed < 1) window.open(el.href);
-  }
-}, false);
-
 $login.addEventListener('click', function(){
   hello('foursquare').login({
     display: 'popup'
@@ -82,11 +69,18 @@ hello
         var currentInfoWindow = {close: function(){}};
         allVenues.forEach(function(item){
           var venue = item.venue;
+          var addr = venue.location.formattedAddress;
+          var linkAddr = '';
+          if (addr && addr.length){
+            addr = addr.join(', ');
+            linkAddr = '<a class="addr" href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank">' + addr + '</a><br>';
+          }
           var infoWindow = new google.maps.InfoWindow({
             content: '<div class="info-content">'
-              + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank" data-target="fsq.venue" data-venue="' + venue.id + '" style="display: block;"><strong>' + venue.name + '</strong></a>'
-              + (venue.location.formattedAddress ? (venue.location.formattedAddress.join('<br>') + '<br>') : '')
-              + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; })
+              + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank"><strong>' + venue.name + '</strong></a><br>'
+              + linkAddr
+              + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small><br>'; })
+              + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a>'
               + '</div>'
           });
 
