@@ -28,7 +28,7 @@ hello
       if (listID){
         callback(listID);
       } else {
-        hello('foursquare').api('users/self/lists', {group: 'created'}).then(function(data){
+        hello('foursquare').api('users/self/lists', {group: 'yours'}).then(function(data){
           var items = data.response.lists.items;
           var item = items.filter(function(item){return /todo/.test(item.id)})[0];
           if (!item){
