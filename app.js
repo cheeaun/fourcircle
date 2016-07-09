@@ -90,6 +90,15 @@ hello
         });
 
         var marker = new google.maps.Marker({
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 6,
+            fillColor: 'red',
+            fillOpacity: 1,
+            strokeColor: '#fff',
+            strokeOpacity: .5,
+            strokeWeight: 6
+          },
           position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
           map: map,
           title: venue.name
