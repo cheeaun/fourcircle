@@ -1,4 +1,4 @@
-var map;
+var map, isMapLoaded = false;
 var $preConnect = document.getElementById('pre-connect');
 var $postConnect = document.getElementById('post-connect');
 var $login = document.getElementById('login-foursquare');
@@ -23,7 +23,7 @@ hello
     $preConnect.hidden = true;
     $postConnect.hidden = false;
 
-    var getList = function(callback){
+    function getList(callback){
       var listID = lscache.get('listID');
       if (listID){
         callback(listID);
@@ -43,7 +43,7 @@ hello
     };
 
     var venues = [];
-    var getVenues = function(index, listID, callback){
+    function getVenues(index, listID, callback){
       var allVenues = lscache.get('allVenues');
       if (allVenues && allVenues.length){
         callback(allVenues);
@@ -64,38 +64,46 @@ hello
       }
     };
 
-    getList(function(listID){
-      getVenues(0, listID, function(allVenues){
-        var currentInfoWindow = {close: function(){}};
-        allVenues.forEach(function(item){
-          var venue = item.venue;
-          var addr = venue.location.formattedAddress;
-          var linkAddr = '';
-          if (addr && addr.length){
-            addr = addr.join(', ');
-            linkAddr = '<a class="addr" href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank">' + addr + '</a><br>';
-          }
-          var infoWindow = new google.maps.InfoWindow({
-            content: '<div class="info-content">'
-              + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank"><strong>' + venue.name + '</strong></a><br>'
-              + linkAddr
-              + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small><br>'; })
-              + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a>'
-              + '</div>'
-          });
+    function plotVenues(allVenues){
+      if (!isMapLoaded){
+        setTimeout(function(){
+          plotVenues(allVenues);
+        }, 1000);
+        return;
+      }
+      var currentInfoWindow = {close: function(){}};
+      allVenues.forEach(function(item){
+        var venue = item.venue;
+        var addr = venue.location.formattedAddress;
+        var linkAddr = '';
+        if (addr && addr.length){
+          addr = addr.join(', ');
+          linkAddr = '<a class="addr" href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank">' + addr + '</a><br>';
+        }
+        var infoWindow = new google.maps.InfoWindow({
+          content: '<div class="info-content">'
+            + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank"><strong>' + venue.name + '</strong></a><br>'
+            + linkAddr
+            + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small><br>'; })
+            + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a>'
+            + '</div>'
+        });
 
-          var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
-            map: map,
-            title: venue.name
-          });
-          google.maps.event.addListener(marker, 'click', function() {
-            currentInfoWindow.close();
-            infoWindow.open(map, marker);
-            currentInfoWindow = infoWindow;
-          });
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
+          map: map,
+          title: venue.name
+        });
+        google.maps.event.addListener(marker, 'click', function() {
+          currentInfoWindow.close();
+          infoWindow.open(map, marker);
+          currentInfoWindow = infoWindow;
         });
       });
+    };
+
+    getList(function(listID){
+      getVenues(0, listID, plotVenues);
     });
   })
   .on('auth.logout', function(){
@@ -107,11 +115,13 @@ hello.init({
   foursquare: 'QUJ11EJTNO0PNBLA40QWMSQZCXJMMVP05NJ1NYI0MZ1PB4P3'
 });
 
-google.maps.event.addDomListener(window, 'load', function(){
+function initMap(){
   map = new google.maps.Map(document.getElementById('map'), {
+    backgroundColor: '#B3D1FF',
     zoom: 16,
     disableDefaultUI: true
   });
+  isMapLoaded = true;
 
   var transitLayer = new google.maps.TransitLayer();
   transitLayer.setMap(map);
@@ -130,11 +140,11 @@ google.maps.event.addDomListener(window, 'load', function(){
     title: 'Your current location'
   });
 
-  if(navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
+  if (navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(position){
       var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
       map.setCenter(pos);
-    }, function() {
+    }, function(){
       alert('Oops, unable to get your location :(');
     });
 
@@ -144,11 +154,11 @@ google.maps.event.addDomListener(window, 'load', function(){
       map.setCenter(geoMarker.getPosition());
     }, false);
 
-    navigator.geolocation.watchPosition(function(position) {
+    navigator.geolocation.watchPosition(function(position){
       var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
       geoMarker.setPosition(pos);
     });
   } else {
     alert('Oops, unable to get your location :(');
   }
-});
+};
