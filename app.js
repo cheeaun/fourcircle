@@ -68,7 +68,7 @@ hello
       if (!isMapLoaded){
         setTimeout(function(){
           plotVenues(allVenues);
-        }, 1000);
+        }, 300);
         return;
       }
       var currentInfoWindow = {close: function(){}};
