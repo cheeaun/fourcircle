@@ -149,6 +149,19 @@ function initMap(){
     title: 'Your current location'
   });
 
+  var rectangle = new google.maps.Rectangle({
+    fillColor: '#000000',
+    fillOpacity: 0.3,
+    strokeWeight: 0,
+    map: map,
+    bounds: {
+      north: 90,
+      east: 180,
+      south: -90,
+      west: -180,
+    },
+  });
+
   if (navigator.geolocation){
     navigator.geolocation.getCurrentPosition(function(position){
       var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
