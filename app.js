@@ -64,51 +64,70 @@ hello
       }
     };
 
+    var currentInfoWindow = {close: function(){}};
+
+    function drawMarker(item){
+      var venue = item.venue;
+      var addr = venue.location.formattedAddress;
+      var linkAddr = '';
+      if (addr && addr.length){
+        addr = addr.join(', ');
+        linkAddr = '<a class="addr" href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank">' + addr + '</a><br>';
+      }
+      var infoWindow = new google.maps.InfoWindow({
+        content: '<div class="info-content">'
+          + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank"><strong>' + venue.name + '</strong></a><br>'
+          + linkAddr
+          + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small><br>'; })
+          + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a>'
+          + '</div>'
+      });
+
+      var marker = new google.maps.Marker({
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 6,
+          fillColor: 'red',
+          fillOpacity: 1,
+          strokeColor: '#fff',
+          strokeOpacity: .7,
+          strokeWeight: 3,
+        },
+        position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
+        map: map,
+        title: venue.name
+      });
+      google.maps.event.addListener(marker, 'click', function() {
+        currentInfoWindow.close();
+        infoWindow.open(map, marker);
+        currentInfoWindow = infoWindow;
+      });
+    };
+
     function plotVenues(allVenues){
-      if (!isMapLoaded){
+      if (!isMapLoaded || !map.getBounds()){
         setTimeout(function(){
           plotVenues(allVenues);
         }, 300);
         return;
       }
-      var currentInfoWindow = {close: function(){}};
+
+      var boundedVenues = [], unboundedVenues = [];
+      var bounds = map.getBounds();
       allVenues.forEach(function(item){
         var venue = item.venue;
-        var addr = venue.location.formattedAddress;
-        var linkAddr = '';
-        if (addr && addr.length){
-          addr = addr.join(', ');
-          linkAddr = '<a class="addr" href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank">' + addr + '</a><br>';
+        var position = new google.maps.LatLng(venue.location.lat, venue.location.lng);
+        if (bounds.contains(position)){
+          boundedVenues.push(item);
+        } else {
+          unboundedVenues.push(item);
         }
-        var infoWindow = new google.maps.InfoWindow({
-          content: '<div class="info-content">'
-            + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank"><strong>' + venue.name + '</strong></a><br>'
-            + linkAddr
-            + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small><br>'; })
-            + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a>'
-            + '</div>'
-        });
-
-        var marker = new google.maps.Marker({
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 6,
-            fillColor: 'red',
-            fillOpacity: 1,
-            strokeColor: '#fff',
-            strokeOpacity: .7,
-            strokeWeight: 3,
-          },
-          position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
-          map: map,
-          title: venue.name
-        });
-        google.maps.event.addListener(marker, 'click', function() {
-          currentInfoWindow.close();
-          infoWindow.open(map, marker);
-          currentInfoWindow = infoWindow;
-        });
       });
+
+      boundedVenues.forEach(drawMarker);
+      setTimeout(function(){
+        unboundedVenues.forEach(drawMarker);
+      }, 2000);
     };
 
     getList(function(listID){
