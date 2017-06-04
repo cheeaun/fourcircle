@@ -163,9 +163,24 @@ function initMap(){
   });
 
   if (navigator.geolocation){
+    var storedPos = sessionStorage.getItem('fourcircle-current-position');
+    if (storedPos){
+      var splittedPos = storedPos.split(' ');
+      var oldPos = new google.maps.LatLng(splittedPos[0], splittedPos[1]);
+      map.setCenter(oldPos);
+      geoMarker.setPosition(oldPos);
+    }
+
     navigator.geolocation.getCurrentPosition(function(position){
       var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
       map.setCenter(pos);
+      sessionStorage.setItem('fourcircle-current-position', position.coords.latitude + ' ' + position.coords.longitude);
+
+      navigator.geolocation.watchPosition(function(position){
+        var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        geoMarker.setPosition(pos);
+        sessionStorage.setItem('fourcircle-current-position', position.coords.latitude + ' ' + position.coords.longitude);
+      });
     }, function(){
       alert('Oops, unable to get your location :(');
     });
@@ -175,11 +190,6 @@ function initMap(){
       e.preventDefault();
       map.setCenter(geoMarker.getPosition());
     }, false);
-
-    navigator.geolocation.watchPosition(function(position){
-      var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-      geoMarker.setPosition(pos);
-    });
   } else {
     alert('Oops, unable to get your location :(');
   }
