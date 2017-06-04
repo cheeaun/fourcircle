@@ -96,8 +96,8 @@ hello
             fillColor: 'red',
             fillOpacity: 1,
             strokeColor: '#fff',
-            strokeOpacity: .5,
-            strokeWeight: 6
+            strokeOpacity: .7,
+            strokeWeight: 3,
           },
           position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
           map: map,
@@ -142,8 +142,8 @@ function initMap(){
       fillColor: '#4B9FF9',
       fillOpacity: 1,
       strokeColor: '#fff',
-      strokeOpacity: .5,
-      strokeWeight: 6
+      strokeOpacity: .7,
+      strokeWeight: 3,
     },
     map: map,
     title: 'Your current location'
