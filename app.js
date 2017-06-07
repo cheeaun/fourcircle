@@ -72,16 +72,14 @@ hello
       var venue = item.venue;
       var addr = venue.location.formattedAddress;
       var linkAddr = '';
-      if (addr && addr.length){
-        addr = addr.join(', ');
-        linkAddr = '<a class="addr" href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank">' + addr + '</a><br>';
-      }
+      if (addr && addr.length) addr = addr.join(', ');
       var infoWindow = new google.maps.InfoWindow({
         content: '<div class="info-content">'
           + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank"><strong>' + venue.name + '</strong></a><br>'
-          + linkAddr
+          + addr + ' '
           + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small><br>'; })
-          + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a>'
+          + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a> '
+          + '<a href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank" class="button">Get directions</a>'
           + '</div>'
       });
 
