@@ -2,6 +2,7 @@ var map, isMapLoaded = false;
 var $preConnect = document.getElementById('pre-connect');
 var $postConnect = document.getElementById('post-connect');
 var $login = document.getElementById('login-foursquare');
+var $refreshMarkers = document.getElementById('refresh-markers');
 var $logout = document.getElementById('logout-foursquare');
 var $currentLocation = document.getElementById('current-location');
 var $beam = document.getElementById('beam');
@@ -59,12 +60,13 @@ hello
             return;
           }
           callback(venues);
-          lscache.set('allVenues', venues, 60); // 1 hour
+          lscache.set('allVenues', venues, 24*60); // 24 hours
         });
       }
     };
 
     var currentInfoWindow = {close: function(){}};
+    var placeMarkers = [];
 
     function drawMarker(item){
       var venue = item.venue;
@@ -97,10 +99,17 @@ hello
         map: map,
         title: venue.name
       });
+      placeMarkers.push(marker);
       google.maps.event.addListener(marker, 'click', function() {
         currentInfoWindow.close();
         infoWindow.open(map, marker);
         currentInfoWindow = infoWindow;
+      });
+    };
+
+    function clearMarkers(){
+      placeMarkers.forEach(function(marker){
+        marker.setMap(null);
       });
     };
 
@@ -133,6 +142,14 @@ hello
     getList(function(listID){
       getVenues(0, listID, plotVenues);
     });
+
+    $refreshMarkers.addEventListener('click', function(){
+      clearMarkers();
+      lscache.remove('allVenues');
+      getList(function(listID){
+        getVenues(0, listID, plotVenues);
+      });
+    }, false);
   })
   .on('auth.logout', function(){
     $preConnect.hidden = false;
