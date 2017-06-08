@@ -19,6 +19,8 @@ $logout.addEventListener('click', function(){
   });
 }, false);
 
+var currentInfoWindow = {close: function(){}};
+
 hello
   .on('auth.login', function(auth){
     $preConnect.hidden = true;
@@ -65,7 +67,6 @@ hello
       }
     };
 
-    var currentInfoWindow = {close: function(){}};
     var placeMarkers = [];
 
     function drawMarker(item){
@@ -194,6 +195,10 @@ function initMap(){
       south: -90,
       west: -180,
     },
+  });
+
+  google.maps.event.addListener(rectangle, 'click', function() {
+    currentInfoWindow.close();
   });
 
   if (navigator.geolocation){
