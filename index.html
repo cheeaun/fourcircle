@@ -15,6 +15,7 @@ small { text-transform: uppercase; opacity: .7; }
 .addr { color: inherit; }
 .addr:hover { text-decoration: underline; }
 button, .button { display: inline-block; padding: .4em 1em; margin: .2em 0; border: 1px solid #4B9FF9; background-color: transparent; color: #4B9FF9; border-radius: 3px; cursor: pointer; }
+#post-connect button { display: block; width: 100%; }
 #current-location {
   position: absolute;
   bottom: 16px;
@@ -41,8 +42,12 @@ button, .button { display: inline-block; padding: .4em 1em; margin: .2em 0; bord
     <button id="login-foursquare">Connect with Foursquare</button>
   </div>
   <div id="post-connect" hidden>
-    <button id="refresh-markers">Refresh</button>
-    <button id="logout-foursquare">Logout</button>
+    <details>
+      <summary>Menu</summary>
+      <button id="clean-up">Clean up</button>
+      <button id="refresh-markers">Refresh</button>
+      <button id="logout-foursquare">Logout</button>
+    </details>
   </div>
 </section>
 <button id="current-location" title="Current location" hidden>➤</button>

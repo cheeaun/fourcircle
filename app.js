@@ -3,23 +3,25 @@ var $preConnect = document.getElementById('pre-connect');
 var $postConnect = document.getElementById('post-connect');
 var $login = document.getElementById('login-foursquare');
 var $refreshMarkers = document.getElementById('refresh-markers');
+var $cleanUp = document.getElementById('clean-up');
 var $logout = document.getElementById('logout-foursquare');
 var $currentLocation = document.getElementById('current-location');
 var $beam = document.getElementById('beam');
 
+var FSQ = hello('foursquare');
+
 $login.addEventListener('click', function(){
-  hello('foursquare').login({
-    display: 'popup'
-  });
+  FSQ.login();
 }, false);
 
 $logout.addEventListener('click', function(){
-  hello('foursquare').logout().then(function(){
+  FSQ.logout().then(function(){
     location.reload();
   });
 }, false);
 
 var currentInfoWindow = {close: function(){}};
+var listID;
 
 hello
   .on('auth.login', function(auth){
@@ -27,38 +29,38 @@ hello
     $postConnect.hidden = false;
 
     function getList(callback){
-      var listID = lscache.get('listID');
+      listID = lscache.get('listID');
       if (listID){
-        callback(listID);
+        callback();
       } else {
-        hello('foursquare').api('users/self/lists', {group: 'yours'}).then(function(data){
+        FSQ.api('users/self/lists', {group: 'yours'}).then(function(data){
           var items = data.response.lists.items;
           var item = items.filter(function(item){return /todo/.test(item.id)})[0];
           if (!item){
             callback();
             return;
           };
-          var listID = item.id;
-          callback(listID);
-          lscache.set('listID', listID, 60); // 1 hour
+          listID = item.id;
+          callback();
+          lscache.set('listID', listID, 30*24*60); // 30 days
         });
       }
     };
 
     var venues = [];
-    function getVenues(index, listID, callback){
+    function getVenues(index, callback){
       var allVenues = lscache.get('allVenues');
       if (allVenues && allVenues.length){
         callback(allVenues);
       } else {
-        hello('foursquare').api('lists/' + listID, {
+        FSQ.api('lists/' + listID, {
           limit: 200,
           offset: index*200
         }).then(function(d){
           var listItems = d.response.list.listItems;
-          venues = venues.concat(listItems.items);
+          venues = venues.concat(listItems.items.map(function(item){ return item.venue; }));
           if (listItems.count > venues.length){
-            getVenues(++index, listID, callback);
+            getVenues(++index, callback);
             return;
           }
           callback(venues);
@@ -69,8 +71,7 @@ hello
 
     var placeMarkers = [];
 
-    function drawMarker(item){
-      var venue = item.venue;
+    function drawMarker(venue){
       var addr = venue.location.formattedAddress;
       var linkAddr = '';
       if (addr && addr.length) addr = addr.join(', ');
@@ -123,13 +124,12 @@ hello
 
       var boundedVenues = [], unboundedVenues = [];
       var bounds = map.getBounds();
-      allVenues.forEach(function(item){
-        var venue = item.venue;
+      allVenues.forEach(function(venue){
         var position = new google.maps.LatLng(venue.location.lat, venue.location.lng);
         if (bounds.contains(position)){
-          boundedVenues.push(item);
+          boundedVenues.push(venue);
         } else {
-          unboundedVenues.push(item);
+          unboundedVenues.push(venue);
         }
       });
 
@@ -139,16 +139,37 @@ hello
       }, 2000);
     };
 
-    getList(function(listID){
-      getVenues(0, listID, plotVenues);
+    getList(function(){
+      getVenues(0, plotVenues);
     });
 
     $refreshMarkers.addEventListener('click', function(){
       clearMarkers();
       lscache.remove('allVenues');
-      getList(function(listID){
-        getVenues(0, listID, plotVenues);
+      getList(function(){
+        getVenues(0, plotVenues);
       });
+    }, false);
+
+    $cleanUp.addEventListener('click', function(){
+      var checkedVenues = (sessionStorage.getItem('checkedVenues') || '').split(',');
+      var allVenues = lscache.get('allVenues')
+      allVenues = allVenues.filter(function(v){ return !checkedVenues.includes(v.id) });
+      if (!allVenues.length) console.log('No more to clean up!');
+      allVenues.slice(0, 100).forEach(function(venue){
+        checkedVenues.push(venue.id);
+        FSQ.api('venues/' + venue.id).then(function(data){
+          var v = data.response.venue;
+          var beenHere = !!v.beenHere.count;
+          console.log(beenHere ? '✅' : '❌', v.id, v.name);
+          if (beenHere){
+            FSQ.api('lists/' + listID + '/deleteitem', 'POST', { venueId: v.id }).then(function(){
+              console.log('💥', v.id, v.name);
+            });
+          }
+        });
+      });
+      sessionStorage.setItem('checkedVenues', checkedVenues.join(','));
     }, false);
   })
   .on('auth.logout', function(){
