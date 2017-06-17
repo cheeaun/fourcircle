@@ -76,9 +76,10 @@ hello
       if (addr && addr.length) addr = addr.join(', ');
       var infoWindow = new google.maps.InfoWindow({
         content: '<div class="info-content">'
-          + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank"><strong>' + venue.name + '</strong></a><br>'
-          + addr + ' '
-          + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small><br>'; })
+          + '<a href="http://foursquare.com/v/' + venue.id + '" target="_blank"><strong>' + venue.name + '</strong></a> '
+          + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; }).join(' ')
+          + '<br>'
+          + addr + '<br>'
           + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a> '
           + '<a href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank" class="button">Get directions</a>'
           + '</div>'
