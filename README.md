@@ -6,4 +6,6 @@ Your Foursquare to-do venues plotted on a map. Your current location is also plo
 License
 -------
 
+Icons from Open Iconic <https://useiconic.com/open>.
+
 [MIT](http://cheeaun.mit-license.org/).

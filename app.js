@@ -81,8 +81,18 @@ hello
           + venue.categories.map(function(cat){ return '<small>' + cat.name + '</small>'; }).join(' ')
           + '<br>'
           + addr + '<br>'
-          + '<a href="foursquare://venues/' + venue.id + '" class="button">Open in App</a> '
-          + '<a href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank" class="button">Get directions</a>'
+          + '<a href="foursquare://venues/' + venue.id + '" class="button">'
+            + '<svg viewBox="0 0 8 8"><path d="M.19 0c-.11 0-.19.08-.19.19v7.63c0 .11.08.19.19.19h4.63c.11 0 .19-.08.19-.19v-7.63c0-.11-.08-.19-.19-.19h-4.63zm.81 1h3v5h-3v-5zm1.5 5.5c.28 0 .5.22.5.5s-.22.5-.5.5-.5-.22-.5-.5.22-.5.5-.5z"/></svg> '
+            + 'Open'
+          +'</a> '
+          + '<a href="swarm://checkins/add?venueId=' + venue.id + '" class="button">'
+            + '<svg viewBox="0 0 8 8"><path d="M3 0c-1.66 0-3 1.34-3 3 0 2 3 5 3 5s3-3 3-5c0-1.66-1.34-3-3-3zm0 1c1.11 0 2 .9 2 2 0 1.11-.89 2-2 2-1.1 0-2-.89-2-2 0-1.1.9-2 2-2z"/></svg> '
+            + 'Check in'
+          + '</a> '
+          + '<a href="https://www.google.com/maps/dir/Current+Location/' + encodeURIComponent(addr) + '" target="_blank" class="button">'
+            + '<svg viewBox="0 0 8 8"><path d="M4 0c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 1c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm2 1l-3 1-1 3 3-1 1-3zm-2 1.5c.28 0 .5.22.5.5s-.22.5-.5.5-.5-.22-.5-.5.22-.5.5-.5z"/></svg> '
+            + 'Directions'
+          + '</a>'
           + '</div>'
       });
 
