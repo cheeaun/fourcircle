@@ -6,7 +6,7 @@
 <style>
 html, body, #map{ height: 100%; margin: 0; padding: 0; background-color: #B3D1FF; }
 body, button{ font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif; font-size: 14px; }
-section{ position: absolute; background: rgba(255,255,255,.75); top: 0; right: 0; z-index: 99999; padding: 10px; max-width: 100%; }
+section{ position: absolute; background: rgba(255,255,255,.75); top: 0; right: 0; z-index: 99999; padding: 10px; max-width: 320px; }
 p{ margin-top: 0; padding-top: 0; }
 .info-content{ max-width: 280px; }
 .info-content svg{ width: 10px; height: 10px; fill: currentColor; }
@@ -15,11 +15,12 @@ a *{ pointer-events: none; }
 small { text-transform: uppercase; opacity: .7; }
 .addr { color: inherit; }
 .addr:hover { text-decoration: underline; }
-button, .button { display: inline-block; padding: .4em 1em; margin: .2em 0; border: 1px solid #4B9FF9; background-color: transparent; color: #4B9FF9; border-radius: 3px; cursor: pointer; }
+button, .button { display: inline-block; padding: .4em 1em; margin: .2em 0; border: 1px solid #4B9FF9; background-color: transparent; color: #4B9FF9; border-radius: 3px; cursor: pointer;}
 button:hover, .button:hover { background-color: #4B9FF9; color: #fff; }
-#post-connect button { display: block; width: 100%; }
 #post-connect summary { text-align: right; }
 #post-connect details[open] summary { margin-bottom: 20px; }
+#post-connect details button { width: 100%; max-width: 8em; margin-right: 1em; }
+#post-connect details > div { display: flex; }
 #current-location {
   position: absolute;
   bottom: 16px;
@@ -46,9 +47,18 @@ button:hover, .button:hover { background-color: #4B9FF9; color: #fff; }
   <div id="post-connect" hidden>
     <details>
       <summary>Menu</summary>
-      <button id="clean-up">Clean up</button>
-      <button id="refresh-markers">Refresh</button>
-      <button id="logout-foursquare">Logout</button>
+      <div>
+        <button id="clean-up">Clean up</button>
+        <p>This will remove check-in-ed places from your saved todo list (100 places at a time).</p>
+      </div>
+      <div>
+        <button id="refresh-markers">Refresh</button>
+        <p>This will refetch all your saved todo list again.</p>
+      </div>
+      <div>
+        <button id="logout-foursquare">Logout</button>
+        <p>Sign out from Foursquare account. Re-login later.</p>
+      </div>
     </details>
   </div>
 </section>
