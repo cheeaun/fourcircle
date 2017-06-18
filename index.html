@@ -30,13 +30,11 @@ button:hover, .button:hover { background-color: #4B9FF9; color: #fff; }
   height: 44px;
   padding: 0;
   border-radius: 10000px;
-  transform: rotate(-45deg);
-  font-size: 18px;
   outline: 0;
 }
-#current-location:active {
-  box-shadow: 0 1px 10px rgba(0,0,0,.5);
-}
+#current-location svg { fill: currentColor; transform: translate(-2px, 2px); }
+#current-location:hover { color: #4B9FF9; }
+#current-location:active { box-shadow: 0 1px 10px rgba(0,0,0,.5); }
 </style>
 
 <div id="map"></div>
@@ -54,7 +52,11 @@ button:hover, .button:hover { background-color: #4B9FF9; color: #fff; }
     </details>
   </div>
 </section>
-<button id="current-location" title="Current location" hidden>➤</button>
+<button id="current-location" title="Current location" hidden>
+  <svg width="16" height="16" viewBox="0 0 8 8">
+    <path d="M8 0l-8 4 3 1 1 3 4-8z"/>
+  </svg>
+</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hellojs/1.14.1/hello.all.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lscache/1.1.0/lscache.min.js"></script>
