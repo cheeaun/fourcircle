@@ -196,6 +196,7 @@ function initMap(){
     backgroundColor: '#B3D1FF',
     zoom: 16,
     disableDefaultUI: true,
+    clickableIcons: false,
     styles: [{
       stylers: [
         {lightness: -20},
