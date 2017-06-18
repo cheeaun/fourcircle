@@ -218,6 +218,7 @@ function initMap(){
       strokeOpacity: 1,
       strokeWeight: 3,
     },
+    clickable: false,
     map: map,
     title: 'Your current location'
   });
