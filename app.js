@@ -195,7 +195,13 @@ function initMap(){
   map = new google.maps.Map(document.getElementById('map'), {
     backgroundColor: '#B3D1FF',
     zoom: 16,
-    disableDefaultUI: true
+    disableDefaultUI: true,
+    styles: [{
+      stylers: [
+        {lightness: -20},
+        {saturation: -50},
+      ],
+    }],
   });
   isMapLoaded = true;
 
@@ -216,20 +222,7 @@ function initMap(){
     title: 'Your current location'
   });
 
-  var rectangle = new google.maps.Rectangle({
-    fillColor: '#000000',
-    fillOpacity: 0.3,
-    strokeWeight: 0,
-    map: map,
-    bounds: {
-      north: 90,
-      east: 180,
-      south: -90,
-      west: -180,
-    },
-  });
-
-  google.maps.event.addListener(rectangle, 'click', function() {
+  google.maps.event.addListener(map, 'click', function() {
     currentInfoWindow.close();
   });
 
